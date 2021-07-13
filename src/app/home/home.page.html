@@ -1,20 +1,63 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      MyLinkedIn
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">MyLinkedIn</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <ion-item>
+    <ion-label position="floating">Email</ion-label>
+    <ion-input type="email" [(ngModel)]="inputLogin.email" required="true" name="email"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Password</ion-label>
+    <ion-input type="password"  [(ngModel)]="inputLogin.password" required="true" name="password"></ion-input>
+  </ion-item>
+  <ion-row>
+    <ion-col size="6">
+      <ion-button color="primary" routerLink="/registration">Registration request</ion-button>
+    </ion-col>
+    <ion-col>
+    </ion-col>
+    <ion-col>
+      <ion-button color="primary" (click)="sendCredential()"
+                  [disabled]="!inputLogin.email || !inputLogin.password">Login</ion-button>
+    </ion-col>
+  </ion-row>
+  <ion-row *ngIf="!auth">
+    <ion-button color="danger" size="small">Wrong credentials</ion-button>
+  </ion-row>
+  <ion-row *ngIf="!applOrOff">
+    <ion-button color="danger" size="small">You aren't an Applicant or an Offerror</ion-button>
+  </ion-row>
+
+
+
+  <ion-card *ngFor="let post of visiblePosts">
+    <ion-card-header>
+      <ion-card-title>{{post.type}}</ion-card-title>
+      <ion-card-subtitle>{{post.nameAndSurnameUser}}</ion-card-subtitle>
+      <ion-card-subtitle>{{post.datetime | date: 'dd/MM/yyyy'}}</ion-card-subtitle>
+    </ion-card-header>
+    <div *ngFor="let data of post.dataDTOList">
+      <div style="margin-left: 20px" *ngIf="data.field !== 'Foto'">
+        <p>{{data.field}}: {{data.data}}
+      </div>
+    </div>
+    <div *ngFor="let data of post.dataDTOList">
+      <div *ngIf="data.field === 'Foto'">
+        <ion-img [src]="data.dataFilePath"></ion-img>
+      </div>
+    </div>
+  </ion-card>
+
 </ion-content>

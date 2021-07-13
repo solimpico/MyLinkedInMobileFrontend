@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-button slot="start">
+      <ion-button routerLink="{{backpage}}">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-button>
+    <ion-title>Registration Request</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label position="floating">Name</ion-label>
+    <ion-input type="text" [(ngModel)]="newUser.name"
+               required="true" name="name"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Surname</ion-label>
+    <ion-input type="text" [(ngModel)]="newUser.surname" required="true"
+               name="surname"></ion-input>
+  </ion-item>
+  <br>
+  <ion-item>
+    <ion-label position="fixed">Birthday</ion-label>
+    <ion-input type="date" [(ngModel)]="newUser.birthday"
+               required="true" name="birthday"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Age</ion-label>
+    <ion-input type="number" [(ngModel)]="newUser.age"
+               required="true" name="age"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-list>
+      Select role: {{newUser.role}}
+      <ion-item>
+        <ion-button (click)="newUser.role = 'Applicant'">Applicant</ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-button (click)="newUser.role = 'Offeror'">Offeror</ion-button>
+      </ion-item>
+    </ion-list>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Email</ion-label>
+    <ion-input type="text" [(ngModel)]="newUser.email"
+               required="true" name="email"
+               pattern="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Confirm email</ion-label>
+    <ion-input type="text" [(ngModel)]="newUser.emailToVerify"
+               required="true" name="emailToVerify"
+               pattern="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Password</ion-label>
+    <ion-input type="password" [(ngModel)]="newUser.password"
+               required="true" name="password"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Confirm password</ion-label>
+    <ion-input type="password" [(ngModel)]="newUser.passwordToVerify"
+               required="true" name="passwordToVerify"></ion-input>
+  </ion-item>
+  <ion-button  (click)="sendRegistrationRequest()" size="small" [disabled]="!newUser.name || !newUser.surname || !newUser.birthday || !newUser.age || !newUser.email || !newUser.emailToVerify || newUser.email !== newUser.emailToVerify || !newUser.password || newUser.password !== newUser.passwordToVerify || !newUser.passwordToVerify || !newUser.role">Send</ion-button>
+  <div *ngIf="success" style="margin-left: 20px">
+    <ion-button color="success">Registration request sent successfully</ion-button>
+    <ion-button color="success">Riceverai un'email all'accettazione</ion-button>
+  </div>
+</ion-content>

@@ -1,5 +1,7 @@
 {
   "name": "MyLinkedInMobile",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

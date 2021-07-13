@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-button slot="start">
+      <io-button routerLink="{{backpage}}">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </io-button>
+    </ion-button>
+    <ion-title>Chat</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!--New message-->
+  <ion-button (click)="newConvBool = !newConvBool" size="small">New Message <ion-icon name="add-circle-outline"></ion-icon></ion-button>
+  <ion-list *ngIf="newConvBool">
+    <ion-item>
+      <ion-label position="floating">Receiver</ion-label>
+      <ion-input [(ngModel)]="searchInput" required="true" name="idReceiver"></ion-input>
+    </ion-item>
+    <div style="margin-left: 20px">
+      Results <br>
+    </div>
+    <ion-list *ngFor="let u of allUsers | searchUser: searchInput">
+      <ion-item>
+        <ion-button (click)="newMessage.idReceiver = u.id">{{u.name}} {{u.surname}}</ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-item>
+      <ion-label position="floating">Message</ion-label>
+      <ion-input [(ngModel)]="newMessage.message" required="true" name="message"></ion-input>
+    </ion-item>
+    <ion-button (click)="sendNewMessage()" size="small" color="success" [disabled]="newMessage.idReceiver===idUser ||
+     !newMessage.message || !newMessage.idReceiver">
+      Send message
+    </ion-button>
+  </ion-list>
+
+  <!--All conversations-->
+  <ion-list *ngFor="let item of allChats">
+    <ion-button expand="full" (click)="item.visible = !item.visible">
+      {{item.nameSender}} - {{item.nameReceiver}}
+    </ion-button>
+    <ion-list *ngIf="item.visible">
+      <ion-item *ngFor="let mess of orderMessage(item)">
+        <ion-card>
+          <ion-header>
+            {{mess.nameSender}}
+          </ion-header>
+          <ion-card-subtitle>
+            {{mess.datetime | date: 'dd/MM/yyyy, HH:mm'}}
+          </ion-card-subtitle>
+          <ion-card-content>
+            {{mess.message}}<br>
+          </ion-card-content>
+        </ion-card>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">New message</ion-label>
+        <ion-input [(ngModel)]="newMessage.message" required="true" name="message"></ion-input>
+      </ion-item>
+      <ion-button (click)="addMessage(item)" [disabled]="!newMessage.message">Send</ion-button>
+    </ion-list>
+  </ion-list>
+</ion-content>

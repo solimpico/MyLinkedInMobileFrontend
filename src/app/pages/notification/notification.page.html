@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-button slot="start">
+      <ion-button routerLink="{{backPage}}">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-button>
+    <ion-title>News</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="allNotifications.length !== 0">
+    <ion-card>
+      <ion-button color="danger" size="small" (click)="deleteAllNotification()">
+        Delete all
+      </ion-button>
+    </ion-card>
+    <ion-card *ngFor="let notification of allNotifications">
+      <ion-card-content>
+        <ion-row>
+          <ion-col>
+            <h4>Message:</h4>
+            {{notification.message}}
+          </ion-col>
+          <ion-col>
+          </ion-col>
+          <ion-col>
+            <ion-button color="danger" size="small" (click)="deleteNotification(notification)">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-card-content>
+      <div *ngIf="notification.postDTO">
+        <h4>Post:</h4>
+        {{notification.postDTO.nameAndSurnameUser}} <br>
+        {{notification.postDTO.datetime | date: 'dd/MM/yyyy, HH:mm'}}
+        <div *ngFor="let data of notification.postDTO.dataDTOList">
+          <div *ngIf="data.field !== 'Curriculum' && data.field !== 'Foto'">
+            {{data.field}} {{data.data}}
+          </div>
+        </div>
+      </div>
+    </ion-card>
+
+  </ion-card>
+  <ion-card *ngIf="allNotifications.length === 0">
+    <ion-button color="success" expand="full">Nessuna nuova notifica :)</ion-button>
+  </ion-card>
+
+</ion-content>

@@ -1,0 +1,192 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-button slot="start">
+      <ion-button routerLink="{{backpage}}">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-button>
+    <ion-title>Post</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-toolbar>
+    <ion-segment value="position">
+      <ion-segment-button value="position" (click)="findPostByPosition()">
+        By position
+      </ion-segment-button>
+      <ion-segment-button value="date" (click)="findPostByDate()">
+        By date
+      </ion-segment-button>
+      <ion-segment-button *ngIf="user.role === 'Applicant'" value="skils" (click)="findPostBySkils()">
+        By skils
+      </ion-segment-button>
+      <ion-segment-button *ngIf="user.role === 'Applicant'" value="offeror" (click)="findPostByOfferor()">
+        By offeror
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+  <ion-button style="margin-left: 20px" size="default" color="primary" (click)="newP = !newP; newP2 = false">
+    <ion-icon name="newspaper-outline"></ion-icon> New Post
+  </ion-button>
+  <div *ngIf="user.role==='Applicant'" style="margin-left: 20px">
+    <ion-button (click)="saveOnPdf = !saveOnPdf">Select posts to save</ion-button>
+  </div>
+  <div *ngIf="saveOnPdf" style="margin-left: 20px">
+    <ion-button [disabled]="postToSave.idPostArray.length === 0" (click)="savePdf()">Save posts</ion-button>
+  </div>
+  <div style="margin-left: 20px" *ngIf="newP">
+    <br>
+    Select type: {{newPost.type}}
+    <ion-list *ngFor="let type of postTypeList">
+      <ion-item>
+        <ion-button (click)="addPost(type)">{{type.type}}</ion-button>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div *ngIf="newP2">
+    <h4 style="margin-left: 20px">{{selectedType.type}}</h4>
+    <div *ngFor="let data of dataDTOList">
+      <ion-item *ngIf="data.field !== 'Skil' && data.field !== 'Foto' && data.field !== 'Curriculum'">
+        <ion-label position="floating">{{data.field}}</ion-label>
+        <ion-input [(ngModel)]="data.data" name="data"></ion-input>
+      </ion-item>
+    </div>
+
+    <div *ngFor="let requiredFields of selectedType.requiredFields">
+      <ion-list *ngIf="requiredFields === 'Skil'">
+        <div style="margin-left: 20px">
+          Skils:
+        </div>
+        <ion-item *ngFor="let skil of allSkils">
+          <ion-button (click)="addDataToPost('Skil',skil.skilName)"> {{skil.skilName}} </ion-button>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <div style="margin-left: 20px" *ngFor="let requiredField of selectedType.requiredFields">
+      <div *ngIf="requiredField === 'Curriculum'">
+        <div>
+          <br>Add {{requiredField}}: <br>
+        </div>
+        <div>
+          <input type="file" (change)="onFileSelected($event)" multiple="multiple">
+          <ion-button size="small" color="primary" (click)="addDataToPost(requiredField, 'http://localhost:8080/public/download/' + selectedFile.name)">Add file</ion-button>
+        </div>
+      </div>
+      <div *ngIf="requiredField === 'Foto'">
+        <ion-button size="small" color="primary" (click)="getPicture()">Get picture from library</ion-button>
+      </div>
+    </div>
+    <div style="margin-left: 20px">
+      <ion-button (click)="savePost()">Add Post</ion-button>
+    </div>
+    <div style="margin-left: 20px" *ngIf="!requiredFieldRespected">
+      <ion-button color="danger" size="small">Required field not respected!</ion-button>
+    </div>
+
+  </div>
+  <ion-card *ngFor="let post of visiblePosts">
+    <ion-card-header>
+      <ion-row>
+        <ion-col size="6">
+          <ion-card-title>{{post.type}}</ion-card-title>
+          <ion-card-subtitle style="margin-left: -10px">
+            <ion-button (click)="moreDetails(post.userId)" color="light" size="small">{{post.nameAndSurnameUser}}</ion-button>
+          </ion-card-subtitle>
+        </ion-col>
+        <ion-col>
+        </ion-col>
+        <!--Selezione applicant o offeror-->
+        <ion-col *ngIf="post.userId === idUser">
+          <ion-button color="danger" size="small" (click)="deletePost(post)"><ion-icon name="trash-outline"></ion-icon></ion-button>
+        </ion-col>
+        <ion-col *ngIf="user.role === 'Offeror' && post.type === 'Job Request'">
+          <ion-button color="primary" size="small" (click)="selectPost(post, user.name + ' ' +
+          user.surname +' è interessato alla tua richiesta di lavoro' +
+          '\nLa sua email è: ' +user.email)">Select</ion-button>
+          <div *ngIf="post.success">
+            <ion-button *ngIf="post.success" size="small" color="success">Success</ion-button>
+          </div>
+        </ion-col>
+        <ion-col *ngIf="user.role === 'Applicant' && post.type === 'Job Offer'">
+          <div *ngIf="saveOnPdf">
+            <ion-checkbox (click)="postToSave.idPostArray.push(post.id)" checked="false"></ion-checkbox>
+          </div>
+          <ion-button color="primary" size="small" (click)="selectPost(post, user.name + ' ' +
+          user.surname +' è interessato alla tua offerta di lavoro' +
+          '\nLa sua email è: ' +user.email)">Select</ion-button>
+          <div *ngIf="post.success">
+            <ion-button *ngIf="post.success" size="small" color="success">Success</ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+      <!--Post-->
+    </ion-card-header>
+    <div style="margin-left: 20px">
+      {{post.datetime | date: 'dd/MM/yyyy, HH:mm'}}
+    </div>
+    <div *ngFor="let data of post.dataDTOList">
+      <div style="margin-left: 20px" *ngIf="data.field !=='Foto' && data.field !=='Curriculum'">
+        <p>{{data.field}}: {{data.data}}
+      </div>
+    </div>
+    <div *ngFor="let data of post.dataDTOList">
+      <div *ngIf="data.field === 'Foto'">
+        <ion-img [src]="data.dataFilePath"></ion-img>
+      </div>
+    </div>
+    <div *ngFor="let data of post.dataDTOList">
+      <div *ngIf="data.field === 'Curriculum'">
+        <ion-button style="margin-left:20px" color="primary" size="small" (click)="downloadFile(data.dataFilePath, post.nameAndSurnameUser)">Download curriculum</ion-button>
+      </div>
+    </div>
+    <ion-button style="margin-left: 20px" color="light" size="small" (click)="post.showComments = !post.showComments">Show/Hide comments</ion-button>
+    <div *ngIf="post.showComments">
+      <div>
+        <ng-container
+          *ngTemplateOutlet="recursiveListTmpl; context:{ list: post.commentDTOList }"
+        ></ng-container>
+      </div>
+
+      <ng-template #recursiveListTmpl let-list="list">
+        <ion-card *ngFor="let item of list">
+          <ion-row>
+            <ion-col size="6">
+              <h5>{{item.author}}</h5>
+            </ion-col>
+            <ion-col>
+            </ion-col>
+            <ion-col *ngIf="item.authorId === idUser">
+              <div style="margin-top: 20px">
+                <ion-icon name="trash-outline" (click)="deleteComment(item)"></ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+          {{ item.datetime | date: 'dd/MM/yyyy HH:mm' }} <br>
+          {{item.comment}}<br>
+          <ion-button size="small" color="primary" fill="outline" (click)="item.reply = !item.reply">Reply</ion-button>
+          <ion-item *ngIf="item.reply">
+            <ion-textarea placeholder="Reply" [(ngModel)]="item.response" name="response" type="text"></ion-textarea>
+            <ion-button color="primary" (click)="addChildComment(item)" [disabled]="!item.response">
+              <ion-icon name="pricetag-outline"></ion-icon> Post comment
+            </ion-button>
+          </ion-item>
+
+          <ul *ngIf="item.commentsOfThread.length > 0">
+            <ion-card-content
+              *ngTemplateOutlet="recursiveListTmpl; context:{ list: item.commentsOfThread }"
+            ></ion-card-content>
+          </ul>
+        </ion-card>
+      </ng-template>
+    </div>
+    <ion-item>
+      <ion-textarea placeholder="Add Comment" [(ngModel)]="post.newComment" name="newComment" type="text"></ion-textarea>
+      <ion-button color="primary" (click)="addNewComment(post)" [disabled]="!post.newComment">
+        <ion-icon name="pricetag-outline"></ion-icon> Post comment
+      </ion-button>
+    </ion-item>
+  </ion-card>
+</ion-content>
